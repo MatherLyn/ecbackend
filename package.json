@@ -1,0 +1,30 @@
+{
+  "name": "ecdemo",
+  "version": "1.0.0",
+  "description": "My web app class homework",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatherLyn/ecdemo.git"
+  },
+  "author": "MatherLyn (2907681146@qq.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MatherLyn/ecdemo/issues"
+  },
+  "homepage": "https://github.com/MatherLyn/ecdemo#readme",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.19.0",
+    "concurrently": "^5.0.0",
+    "express": "^5.0.0-alpha.7",
+    "fs": "0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "mime": "^2.4.4",
+    "mysql": "^2.17.1",
+    "path": "^0.12.7"
+  }
+}
