@@ -13,13 +13,22 @@ const jsonParser = bodyParser.json()
 const controller = express.Router()
 
 // Mapping request url and methods
-controller.get('/', service.getUserList)
 
 controller.post('/register', jsonParser, service.register)
 
 controller.post('/login', jsonParser, service.login)
 
-controller.get('/api/profile', service.auth, service.settings)
+controller.get('/api/userList', service.getUserList)
 
+
+
+
+controller.get('/api/analysis', service.getAnalysis)
+
+controller.get('/api/orderList', service.getOrderList)
+
+controller.get('/api/productList', service.getProductList)
+
+controller.get('/api/profile', service.auth, service.profile)
 
 module.exports = controller

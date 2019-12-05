@@ -11,6 +11,8 @@ const config = require('../../config')
 const controller = require('./controller/controller')
 // service.js
 const service = require('./service/service')
+// cors.js
+const cors = require('cors')
 
 
 // Initialize an express object
@@ -25,6 +27,9 @@ app.use(function (req, res, next) {
 })
 // Use router management module
 app.use(controller)
+// Use cors
+app.use(cors)
+
 
 // Start to listen a port
 app.listen(config.port, () => {

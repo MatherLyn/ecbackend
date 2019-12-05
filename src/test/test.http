@@ -1,9 +1,10 @@
-@url=http://localhost:8080
+@url=http://localhost:8081
 @json=Content-Type: application/json
 
 ### 访问首页
 
 GET {{url}} HTTP/1.1
+
 
 ### 注册
 POST {{url}}/register HTTP/1.1
@@ -27,3 +28,6 @@ POST {{url}}/login HTTP/1.1
 ### 获取个人信息
 GET {{url}}/api/profile HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidXNlcjEiLCJpYXQiOjE1NzUxODE0NjN9.MPrX8fmh4rSZLEtdmR6KeIZvgVPR99F-gurrW7WOeAQ
+
+### 获取商品列表
+GET {{url}}/api/productList HTTP/1.1

@@ -74,6 +74,19 @@ const jwtVerify = function (raw) {
   })
 }
 
+const getProductListMeta = function () {
+  const sql = 'SELECT * FROM COMMODITY'
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
 // Middlewares
 const auth = async function (req, res, next) {
   const raw = String(req.headers.authorization).split(' ').pop()
@@ -90,22 +103,6 @@ const auth = async function (req, res, next) {
 
 
 // Service functions
-const getUserList = async function (req, res) {
-  await getUserListMeta().then(result => {
-    res.end(JSON.stringify({
-      "code": 1,
-      "msg": "成功",
-      "data": result
-    }))
-  }, () => {
-    res.end(JSON.stringify({
-      "code": 0,
-      "msg": "服务端出错，请重试",
-      "token": null
-    }))
-  })
-  
-}
 
 const login = async function (req, res) {
   await getUserMeta(req.body.name).then(result => {
@@ -161,16 +158,62 @@ const register = async function (req, res) {
 
 }
 
-const settings = async function (req, res) {
-  res.end(JSON.stringify(req.user))
+const getUserList = async function (req, res) {
+  await getUserListMeta().then(result => {
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": result
+    }))
+  }, () => {
+    res.end(JSON.stringify({
+      "code": 0,
+      "msg": "服务端出错，请重试",
+      "token": null
+    }))
+  })
+  
 }
 
 
 
+
+const getAnalysis = async function (req, res) {
+
+}
+
+const getOrderList = async function (req, res) {
+
+}
+
+const getProductList = async function (req, res) {
+  await getProductListMeta().then(result => {
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": result
+    }))
+  }, () => {
+    res.end(JSON.stringify({
+      "code": 0,
+      "msg": "服务端出错，请重试",
+      "token": null
+    }))
+  })
+}
+
+const profile = async function (req, res) {
+  res.end(JSON.stringify(req.user))
+}
+
+
 module.exports = {
   auth,
-  getUserList,
   register,
   login,
-  settings
+  getUserList,
+  getAnalysis,
+  getOrderList,
+  getProductList,
+  profile,
 }
