@@ -11,9 +11,9 @@ POST {{url}}/api/register HTTP/1.1
 {{json}}
 
 {
-  "name": "user22",
-  "password": "345678",
-  "email": "mkeld12138@163.com"
+  "name": "tester",
+  "password": "123456",
+  "email": "2907681146@qq.com"
 }
 
 ### 登录
@@ -21,13 +21,30 @@ POST {{url}}/api/login HTTP/1.1
 {{json}}
 
 {
-  "name": "user1",
+  "name": "tester",
   "password": "123456"
 }
 
 ### 获取个人信息
 GET {{url}}/api/profile HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidXNlcjEiLCJpYXQiOjE1NzUxODE0NjN9.MPrX8fmh4rSZLEtdmR6KeIZvgVPR99F-gurrW7WOeAQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdGVyIiwiaWF0IjoxNTc2MzkzMTU0fQ.6BWBOMXEmB16-webcY5OjUf0Sp0WJelV3CZdQJITBRI
 
 ### 获取商品列表
 GET {{url}}/api/productList HTTP/1.1
+
+### 获取订单列表
+GET {{url}}/api/orderList HTTP/1.1
+
+### 获取某个用户的历史订单
+GET {{url}}/api/order HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdGVyIiwiaWF0IjoxNTc2MzkzMTU0fQ.6BWBOMXEmB16-webcY5OjUf0Sp0WJelV3CZdQJITBRI
+
+### 下订单
+POST {{url}}/api/placeOrder HTTP/1.1
+{{json}}
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdGVyIiwiaWF0IjoxNTc2MzkzMTU0fQ.6BWBOMXEmB16-webcY5OjUf0Sp0WJelV3CZdQJITBRI",
+  "id": 1,
+  "stock": 200
+}

@@ -30,14 +30,13 @@ const jwtVerify = function (raw) {
   })
 }
 
-
-
 const getUserMeta = function (name) {
   const sql = `SELECT * FROM USER WHERE name="${name}"`
   return new Promise((resolve, reject) => {
     model.query(sql, (err, result) => {
       if (err) {
-        console.log(reject(err.sqlMessage))
+        console.log(err)
+        console.log(err.sqlMessage)
         return reject(err)
       }
       if (!result.length) {
@@ -78,7 +77,7 @@ const addUserMeta = function (name, password, email) {
 
 
 const getOrderListMeta = function () {
-  const sql = 'SELECT * FROM ORDER'
+  const sql = 'SELECT * FROM ORDERS'
   return new Promise((resolve, reject) => {
     model.query(sql, (err, result) => {
       if (err) {
@@ -90,8 +89,8 @@ const getOrderListMeta = function () {
   })
 }
 
-const getOrderMeta = function (id) {
-  const sql = `SELECT * FROM USER WHERE name="${id}"`
+const getOrderMeta = function (customer) {
+  const sql = `SELECT * FROM ORDERS WHERE customer="${customer}"`
   return new Promise((resolve, reject) => {
     model.query(sql, (err, result) => {
       if (err) {
@@ -99,7 +98,7 @@ const getOrderMeta = function (id) {
         return reject(err)
       }
       if (!result.length) {
-        return reject('订单不存在')
+        return reject('没有该用户的购买记录')
       }
       resolve(result)
     })
@@ -107,7 +106,7 @@ const getOrderMeta = function (id) {
 }
 
 const addOrderMeta = function (commodity, quantity, price, totalPrice) {
-  const sql = `INSERT INTO ORDER(\`commodity\`, \`quantity\`, \`price\`, \`totalPrice\`)
+  const sql = `INSERT INTO ORDERS(\`commodity\`, \`quantity\`, \`price\`, \`totalPrice\`)
   VALUES
   ("${commodity}", "${quantity}", "${price}", "${totalPrice}")`
   return new Promise((resolve, reject) => {
@@ -120,7 +119,6 @@ const addOrderMeta = function (commodity, quantity, price, totalPrice) {
     })
   })
 }
-
 
 const getProductListMeta = function () {
   const sql = 'SELECT * FROM COMMODITY'
@@ -135,9 +133,26 @@ const getProductListMeta = function () {
   })
 }
 
+const getProductStockMeta = function (id) {
+  const sql = `SELECT STOCK FROM COMMODITY WHERE ID = ${id}`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
+const reduceProductStockMeta = function (id, stock) {
+
+}
+
 // Middlewares
 const auth = async function (req, res, next) {
-  const raw = String(req.headers.authorization).split(' ').pop()
+  const raw = String(req.headers.authorization).split(' ').pop() || req.body.token
   await jwtVerify(raw).then(async result => {
     req.user = await getUserMeta(result)
     next()
@@ -220,9 +235,7 @@ const getUserList = async function (req, res) {
       "token": null
     }))
   })
-  
 }
-
 
 
 
@@ -231,6 +244,45 @@ const getAnalysis = async function (req, res) {
 }
 
 const getOrderList = async function (req, res) {
+  await getOrderListMeta().then(result => {
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": result
+    }))
+  }, () => {
+    res.end(JSON.stringify({
+      "code": 0,
+      "msg": "服务端出错，请重试",
+      "token": null
+    }))
+  })
+}
+
+const getOrder = async function (req, res) {
+  const customer = req.user[0].name
+  await getOrderMeta(customer).then(result => {
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": result
+    }))
+  }, () => {
+    res.end(JSON.stringify({
+      "code": 0,
+      "msg": "服务端出错，请重试",
+    }))
+  })
+}
+
+const addOrder = async function (req, res) {
+  // 1. 判断用户是否存在（已经在中间件中操作了）
+  // 2. 判断库存是否足够
+  // 3. 操作库存
+  // 4. 在订单数据库里增加订单
+  // 5. 返回剩余库存
+  
+  // 这里的写法还要斟酌一下，回去看一下阮一峰老师的ES6教程
 }
 
 const getProductList = async function (req, res) {
@@ -261,6 +313,8 @@ module.exports = {
   getUserList,
   getAnalysis,
   getOrderList,
+  getOrder,
+  addOrder,
   getProductList,
   profile,
 }
