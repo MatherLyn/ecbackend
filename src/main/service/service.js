@@ -19,18 +19,18 @@ const jwt = require('jsonwebtoken')
 const SECRET = 'MotherLynWeb'
 
 // Meta functions
-const getUserListMeta = function () {
-  const sql = 'SELECT * FROM USER'
+const jwtVerify = function (raw) {
   return new Promise((resolve, reject) => {
-    model.query(sql, (err, result) => {
-      if (err) {
-        console.log(err.sqlMessage)
-        return reject(err)
-      }
-      resolve(result)
-    })
+    try {
+      const {name} = jwt.verify(raw, SECRET)
+      resolve(name)
+    } catch (err) {
+      reject('身份验证不通过')
+    }
   })
 }
+
+
 
 const getUserMeta = function (name) {
   const sql = `SELECT * FROM USER WHERE name="${name}"`
@@ -42,6 +42,19 @@ const getUserMeta = function (name) {
       }
       if (!result.length) {
         return reject('用户不存在')
+      }
+      resolve(result)
+    })
+  })
+}
+
+const getUserListMeta = function () {
+  const sql = 'SELECT * FROM USER'
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
       }
       resolve(result)
     })
@@ -63,16 +76,51 @@ const addUserMeta = function (name, password, email) {
   })
 }
 
-const jwtVerify = function (raw) {
+
+const getOrderListMeta = function () {
+  const sql = 'SELECT * FROM ORDER'
   return new Promise((resolve, reject) => {
-    try {
-      const {name} = jwt.verify(raw, SECRET)
-      resolve(name)
-    } catch (err) {
-      reject('身份验证不通过')
-    }
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
   })
 }
+
+const getOrderMeta = function (id) {
+  const sql = `SELECT * FROM USER WHERE name="${id}"`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(reject(err.sqlMessage))
+        return reject(err)
+      }
+      if (!result.length) {
+        return reject('订单不存在')
+      }
+      resolve(result)
+    })
+  })
+}
+
+const addOrderMeta = function (commodity, quantity, price, totalPrice) {
+  const sql = `INSERT INTO ORDER(\`commodity\`, \`quantity\`, \`price\`, \`totalPrice\`)
+  VALUES
+  ("${commodity}", "${quantity}", "${price}", "${totalPrice}")`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
 
 const getProductListMeta = function () {
   const sql = 'SELECT * FROM COMMODITY'
@@ -183,7 +231,6 @@ const getAnalysis = async function (req, res) {
 }
 
 const getOrderList = async function (req, res) {
-
 }
 
 const getProductList = async function (req, res) {

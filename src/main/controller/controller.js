@@ -14,9 +14,9 @@ const controller = express.Router()
 
 // Mapping request url and methods
 
-controller.post('/register', jsonParser, service.register)
+controller.post('/api/register', jsonParser, service.register)
 
-controller.post('/login', jsonParser, service.login)
+controller.post('/api/login', jsonParser, service.login)
 
 controller.get('/api/userList', service.getUserList)
 
