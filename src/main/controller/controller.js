@@ -37,4 +37,6 @@ controller.get('/api/productList', service.getProductList)
 
 controller.get('/api/profile', service.auth, service.profile)
 
+controller.get('/api/buy', jsonParser, service.buy)
+
 module.exports = controller

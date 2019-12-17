@@ -14,6 +14,8 @@ const mime = require('mime')
 const bcrypt = require('bcrypt-nodejs')
 // Import jsonwebtoken(for returning tokens to users)
 const jwt = require('jsonwebtoken')
+// Import nodemailer(for sending email to ensure the order)
+const nodemailer = require('nodemailer')
 
 // Define SECRET for generating tokens
 const SECRET = 'MotherLynWeb'
@@ -32,6 +34,23 @@ const jwtVerify = function (raw) {
 
 const getUserMeta = function (name) {
   const sql = `SELECT * FROM USER WHERE name="${name}"`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err)
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      if (!result.length) {
+        return reject('用户不存在')
+      }
+      resolve(result)
+    })
+  })
+}
+
+const getUserEmail = function (name) {
+  const sql = `SELECT email FROM USER WHERE name="${name}"`
   return new Promise((resolve, reject) => {
     model.query(sql, (err, result) => {
       if (err) {
@@ -75,6 +94,33 @@ const addUserMeta = function (name, password, email) {
   })
 }
 
+const addNewOrderMeta = function (commodity, quantity, price, totalPrice, customer) {
+  const sql = `INSERT INTO ORDERS(\`commodity\`, \`quantity\`, \`price\`, \`totalPrice\`, \`customer\`)
+  VALUES
+  ("${commodity}", "${quantity}", "${price}", "${totalPrice}", "${customer}")`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
+const addOldOrderMeta = function (commodity, quantity, totalPrice, customer) {
+  const sql = `UPDATE ORDERS SET quantity=quantity+${quantity}, totalPrice=totalPrice+${totalPrice} WHERE commodity="${commodity}" AND Customer="${customer}"`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
 
 const getOrderListMeta = function () {
   const sql = 'SELECT * FROM ORDERS'
@@ -94,21 +140,19 @@ const getOrderMeta = function (customer) {
   return new Promise((resolve, reject) => {
     model.query(sql, (err, result) => {
       if (err) {
-        console.log(reject(err.sqlMessage))
+        console.log(err.sqlMessage)
         return reject(err)
       }
       if (!result.length) {
-        return reject('没有该用户的购买记录')
+        return resolve('没有该用户的购买记录')
       }
       resolve(result)
     })
   })
 }
 
-const addOrderMeta = function (commodity, quantity, price, totalPrice) {
-  const sql = `INSERT INTO ORDERS(\`commodity\`, \`quantity\`, \`price\`, \`totalPrice\`)
-  VALUES
-  ("${commodity}", "${quantity}", "${price}", "${totalPrice}")`
+const getRepeatOrderMeta = function (commodity, customer) {
+  const sql = `SELECT * FROM ORDERS WHERE customer="${customer}" AND commodity="${commodity}"`
   return new Promise((resolve, reject) => {
     model.query(sql, (err, result) => {
       if (err) {
@@ -250,8 +294,6 @@ const getUserList = async function (req, res) {
   })
 }
 
-
-
 const getAnalysis = async function (req, res) {
 
 }
@@ -289,17 +331,26 @@ const getOrder = async function (req, res) {
 }
 
 const addOrder = async function (req, res) {
-  // 1. 判断用户是否存在（已经在中间件中操作了）
-  // 2. 判断库存是否足够
-  // 3. 操作库存
-  // 4. 在订单数据库里增加订单
-  // 5. 返回剩余库存
-  
-  // 这里的写法还要斟酌一下，回去看一下阮一峰老师的ES6教程
+  const body = req.body
+  const result = await getRepeatOrderMeta(body.commodity, body.Customer)
+  if (!result.length) {
+    await addNewOrderMeta(body.commodity, body.quantity, body.price, body.totalPrice, body.Customer)
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": "新增记录"
+    }))
+  } else {
+    await addOldOrderMeta(body.commodity, body.quantity, body.totalPrice, body.Customer)
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": "在旧记录上修改"
+    }))
+  }
 }
 
 const getProduct = async function (req, res) {
-  console.log(req.query)
   await getProductMeta(req.query.itemId).then(result => {
     res.end(JSON.stringify({
       "code": 1,
@@ -334,6 +385,46 @@ const profile = async function (req, res) {
   res.end(JSON.stringify(req.user))
 }
 
+const buy = async function (req, res) {
+  await getUserEmail(req.query.username).then(result => {
+    let transporter = nodemailer.createTransport({
+      host: 'smtp.qq.com',
+      secureConnection: true,
+      port: 465,
+      secure: true,
+      auth: {
+        user: '2907681146@qq.com',
+        pass: 'dljfekaccwmcdeai'
+      }
+    })
+
+    let mailOptions = {
+      from: '一个购物网站 <2907681146@qq.com>',
+      to: result[0].email,
+      subject: '确认发货',
+      text: '您的订单已经确认发货……'
+    }
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        return console.log(err)
+      }
+      console.log(`Message: ${info.messageId}`)
+      console.log(`sent: ${info.response}`)
+    })
+    
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "邮件发送成功"
+    }))
+  }, () => {
+    res.end(JSON.stringify({
+      "code": 0,
+      "msg": "服务端出错，请重试"
+    }))
+  })
+
+}
 
 module.exports = {
   auth,
@@ -347,4 +438,5 @@ module.exports = {
   getProduct,
   getProductList,
   profile,
+  buy
 }

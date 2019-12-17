@@ -37,7 +37,7 @@ GET {{url}}/api/orderList HTTP/1.1
 
 ### 获取某个用户的历史订单
 GET {{url}}/api/order HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdGVyIiwiaWF0IjoxNTc2MzkzMTU0fQ.6BWBOMXEmB16-webcY5OjUf0Sp0WJelV3CZdQJITBRI
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdGVyIiwiaWF0IjoxNTc2MzkzMTU0fQ.6BWBOMXEmB16-webcY5OjUf0Sp0WJelV3CZdQJITBRI
 
 ### 下订单
 POST {{url}}/api/placeOrder HTTP/1.1
