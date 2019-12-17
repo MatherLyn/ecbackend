@@ -150,6 +150,19 @@ const reduceProductStockMeta = function (id, stock) {
 
 }
 
+const getProductMeta = function (id) {
+  const sql = `SELECT * FROM COMMODITY WHERE ID = ${id}`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
 // Middlewares
 const auth = async function (req, res, next) {
   const raw = String(req.headers.authorization).split(' ').pop() || req.body.token
@@ -285,6 +298,22 @@ const addOrder = async function (req, res) {
   // 这里的写法还要斟酌一下，回去看一下阮一峰老师的ES6教程
 }
 
+const getProduct = async function (req, res) {
+  console.log(req.query)
+  await getProductMeta(req.query.itemId).then(result => {
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": result
+    }))
+  }, () => {
+    res.end(JSON.stringify({
+      "code": 0,
+      "msg": "服务端出错，请重试",
+    }))
+  })
+}
+
 const getProductList = async function (req, res) {
   await getProductListMeta().then(result => {
     res.end(JSON.stringify({
@@ -315,6 +344,7 @@ module.exports = {
   getOrderList,
   getOrder,
   addOrder,
+  getProduct,
   getProductList,
   profile,
 }

@@ -31,6 +31,8 @@ controller.get('/api/order', service.auth, service.getOrder)
 
 controller.post('/api/placeOrder', jsonParser, service.auth, service.addOrder)
 
+controller.get('/api/product', service.getProduct)
+
 controller.get('/api/productList', service.getProductList)
 
 controller.get('/api/profile', service.auth, service.profile)
