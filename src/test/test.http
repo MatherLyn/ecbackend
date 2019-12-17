@@ -48,3 +48,13 @@ POST {{url}}/api/placeOrder HTTP/1.1
   "id": 1,
   "stock": 200
 }
+
+### 增加商品
+POST {{url}}/api/addProduct HTTP/1.1
+{{json}}
+
+{
+  "name": "YonexBadminton-6",
+  "price": 100,
+  "stock": 50
+}

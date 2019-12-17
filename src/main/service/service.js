@@ -164,8 +164,49 @@ const getRepeatOrderMeta = function (commodity, customer) {
   })
 }
 
+const addNewProductMeta = function (name, price, stock) {
+  const sql = `INSERT INTO commodity(\`name\`, \`price\`, \`stock\`)
+  VALUES
+  ("${name}", "${price}", "${stock}")`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
+const addOldProductMeta = function (name, stock) {
+  const sql = `UPDATE commodity SET stock=stock+${stock} WHERE name="${name}"`
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
 const getProductListMeta = function () {
   const sql = 'SELECT * FROM COMMODITY'
+  return new Promise((resolve, reject) => {
+    model.query(sql, (err, result) => {
+      if (err) {
+        console.log(err.sqlMessage)
+        return reject(err)
+      }
+      resolve(result)
+    })
+  })
+}
+
+const getRepeatProductMeta = function (name) {
+  const sql = `SELECT * FROM commodity WHERE name="${name}"`
   return new Promise((resolve, reject) => {
     model.query(sql, (err, result) => {
       if (err) {
@@ -365,6 +406,26 @@ const getProduct = async function (req, res) {
   })
 }
 
+const addProduct = async function (req, res) {
+  const body = req.body
+  const result = await getRepeatProductMeta(body.name)
+  if (!result.length) {
+    await addNewProductMeta(body.name, body.price, body.stock)
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": "新增记录"
+    }))
+  } else {
+    await addOldProductMeta(body.name, body.stock)
+    res.end(JSON.stringify({
+      "code": 1,
+      "msg": "成功",
+      "data": "在旧记录上修改，价格不会发生变化"
+    }))
+  }
+}
+
 const getProductList = async function (req, res) {
   await getProductListMeta().then(result => {
     res.end(JSON.stringify({
@@ -435,8 +496,9 @@ module.exports = {
   getOrderList,
   getOrder,
   addOrder,
-  getProduct,
   getProductList,
+  getProduct,
+  addProduct,
   profile,
   buy
 }
